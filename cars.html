@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Kocsikezelő GEB15I" />
+    <title>Kocsikezelő GEB15I</title>
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+    <link rel="stylesheet" href="cars.css">
+</head>
+<body>
+    <header>
+        <h1>Kocsikezelő</h1>
+        <p class="neptun-code">Név: Kun Dávid</p>
+        <p class="neptun-code">Neptun kód: GEB15I</p>
+    </header>
+    
+    <main>
+        <section id="car-list-section">
+            <h2>Autók listája</h2>
+            <div id="car-list" class="car-grid"></div>
+        </section>
+        
+        <section id="car-details-section" class="hidden">
+            <h2>Autó részletei</h2>
+            <div id="car-details"></div>
+            <button id="back-to-list" class="button">Vissza a listához</button>
+        </section>
+        
+        <section id="car-form-section" class="hidden">
+            <h2>Új autó hozzáadása</h2>
+            <form id="car-form">
+                <div class="form-group">
+                    <label for="brand">Márka:</label>
+                    <input type="text" id="brand" name="brand" required>
+                </div>
+                <div class="form-group">
+                    <label for="model">Modell:</label>
+                    <input type="text" id="model" name="model" required>
+                </div>
+                <div class="form-group">
+                    <label for="owner">Tulajdonos:</label>
+                    <input type="text" id="owner" name="owner" required placeholder="Keresztnév Vezetéknév">
+                </div>
+                <div class="form-group">
+                    <label for="fuelUse">Üzemanyagfogyasztás (l/100km):</label>
+                    <input type="number" id="fuelUse" name="fuelUse" step="0.1" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label for="dayOfCommission">Gyártás dátuma:</label>
+                    <input type="date" id="dayOfCommission" name="dayOfCommission" required>
+                </div>
+                <div class="form-group">
+                    <label for="electric">Elektromos autó:</label>
+                    <input type="checkbox" id="electric" name="electric">
+                </div>
+                <button type="submit" class="button">Mentés</button>
+            </form>
+        </section>
+    </main>
+    
+    <footer>
+        <p>Kocsikezelő GEB15I</p>
+    </footer>
+
+    <script src="cars.js"></script>
+</body>
+</html> 
