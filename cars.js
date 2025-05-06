@@ -8,6 +8,7 @@ const carList = document.getElementById('car-list');
 const carDetails = document.getElementById('car-details');
 const backToListButton = document.getElementById('back-to-list');
 const carForm = document.getElementById('car-form');
+const addNewCarButton = document.getElementById('add-new-car');
 
 
 async function loadCars() {
@@ -117,6 +118,50 @@ function showEditForm(car) {
     };
 }
 
+function showNewCarForm() {
+    carListSection.classList.add('hidden');
+    carFormSection.classList.remove('hidden');
+    
+    carForm.reset();
+    
+    carForm.onsubmit = async (e) => {
+        e.preventDefault();
+        await createNewCar();
+    };
+}
+
+async function createNewCar() {
+    const carData = {
+        brand: document.getElementById('brand').value,
+        model: document.getElementById('model').value,
+        owner: document.getElementById('owner').value,
+        fuelUse: parseFloat(document.getElementById('fuelUse').value),
+        dayOfCommission: document.getElementById('dayOfCommission').value,
+        electric: document.getElementById('electric').checked
+    };
+    
+    try {
+        const response = await fetch(`${API_URL}/api/${NEPTUN_CODE}/car`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(carData)
+        });
+        
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Hiba történt az autó létrehozása során');
+        }
+        
+        showSuccess('Az autó sikeresen létrehozva!');
+        loadCars();
+        backToListButton.click();
+    } catch (error) {
+        showError(error.message);
+        console.error('Hiba a létrehozás során:', error);
+    }
+}
 
 async function updateCar(carId) {
     const carData = {
@@ -179,4 +224,5 @@ function showSuccess(message) {
 
 document.addEventListener('DOMContentLoaded', () => {
     loadCars();
+    addNewCarButton.addEventListener('click', showNewCarForm);
 }); 
