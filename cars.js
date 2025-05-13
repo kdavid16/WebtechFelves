@@ -10,7 +10,6 @@ const backToListButton = document.getElementById('back-to-list');
 const carForm = document.getElementById('car-form');
 const addNewCarButton = document.getElementById('add-new-car');
 
-
 async function loadCars() {
     try {
         const response = await fetch(`${API_URL}/api/${NEPTUN_CODE}/car`);
@@ -25,7 +24,6 @@ async function loadCars() {
         console.error('Hiba a kérés során:', error);
     }
 }
-
 
 function displayCars(cars) {
     carList.innerHTML = '';
@@ -43,7 +41,6 @@ function displayCars(cars) {
         carList.appendChild(carCard);
     });
 }
-
 
 function showCarDetails(car) {
     carListSection.classList.add('hidden');
@@ -130,6 +127,66 @@ function showNewCarForm() {
     };
 }
 
+function validateCarData(carData) {
+    const errors = [];
+
+    // Márka validáció
+    if (!carData.brand || carData.brand.trim() === '') {
+        errors.push('A márka megadása kötelező');
+    } else if (carData.brand.length < 2) {
+        errors.push('A márka neve legalább 2 karakter hosszú kell, hogy legyen');
+    }
+
+    // Modell validáció
+    if (!carData.model || carData.model.trim() === '') {
+        errors.push('A modell megadása kötelező');
+    } else if (carData.model.length < 2) {
+        errors.push('A modell neve legalább 2 karakter hosszú kell, hogy legyen');
+    }
+
+    // Tulajdonos validáció
+    if (!carData.owner || carData.owner.trim() === '') {
+        errors.push('A tulajdonos nevének megadása kötelező');
+    } else {
+        const nameParts = carData.owner.trim().split(' ');
+        if (nameParts.length < 2) {
+            errors.push('A tulajdonos nevét Keresztnév Vezetéknév formátumban kell megadni');
+        } else if (nameParts.some(part => part.length < 2)) {
+            errors.push('A keresztnév és vezetéknév legalább 2 karakter hosszú kell, hogy legyen');
+        }
+    }
+
+    // Üzemanyagfogyasztás validáció
+    if (carData.electric) {
+        if (carData.fuelUse !== 0) {
+            errors.push('Elektromos autó esetén az üzemanyagfogyasztásnak 0-nak kell lennie');
+        }
+    } else {
+        if (carData.fuelUse === '' || isNaN(carData.fuelUse)) {
+            errors.push('Az üzemanyagfogyasztás megadása kötelező');
+        } else if (carData.fuelUse < 0) {
+            errors.push('Az üzemanyagfogyasztás nem lehet negatív');
+        } else if (carData.fuelUse > 30) {
+            errors.push('Az üzemanyagfogyasztás nem lehet nagyobb 30 l/100km-nél');
+        }
+    }
+
+    // Gyártás dátum validáció
+    if (!carData.dayOfCommission) {
+        errors.push('A gyártás dátumának megadása kötelező');
+    } else {
+        const date = new Date(carData.dayOfCommission);
+        const currentDate = new Date();
+        if (date > currentDate) {
+            errors.push('A gyártás dátuma nem lehet a jövőben');
+        } else if (date.getFullYear() < 1886) {
+            errors.push('A gyártás dátuma nem lehet 1886 előtt (az első autó gyártási éve)');
+        }
+    }
+
+    return errors;
+}
+
 async function createNewCar() {
     const carData = {
         brand: document.getElementById('brand').value,
@@ -139,6 +196,13 @@ async function createNewCar() {
         dayOfCommission: document.getElementById('dayOfCommission').value,
         electric: document.getElementById('electric').checked
     };
+
+    // Kliens oldali validáció
+    const validationErrors = validateCarData(carData);
+    if (validationErrors.length > 0) {
+        showError(validationErrors.join('\n'));
+        return;
+    }
     
     try {
         const response = await fetch(`${API_URL}/api/${NEPTUN_CODE}/car`, {
@@ -173,6 +237,13 @@ async function updateCar(carId) {
         dayOfCommission: document.getElementById('dayOfCommission').value,
         electric: document.getElementById('electric').checked
     };
+
+    // Kliens oldali validáció
+    const validationErrors = validateCarData(carData);
+    if (validationErrors.length > 0) {
+        showError(validationErrors.join('\n'));
+        return;
+    }
     
     try {
         const response = await fetch(`${API_URL}/api/${NEPTUN_CODE}/car`, {
@@ -197,18 +268,18 @@ async function updateCar(carId) {
     }
 }
 
-
 function showError(message) {
-    const errorDiv = document.createElement('div');
-    errorDiv.className = 'error';
-    errorDiv.textContent = message;
-    document.body.appendChild(errorDiv);
+    const modal = document.getElementById('error-modal');
+    const errorMessage = document.getElementById('error-message');
+    const okButton = document.getElementById('error-ok-button');
     
-    setTimeout(() => {
-        errorDiv.remove();
-    }, 3000);
+    errorMessage.textContent = message;
+    modal.classList.remove('hidden');
+    
+    okButton.onclick = () => {
+        modal.classList.add('hidden');
+    };
 }
-
 
 function showSuccess(message) {
     const successDiv = document.createElement('div');
@@ -220,7 +291,6 @@ function showSuccess(message) {
         successDiv.remove();
     }, 3000);
 }
-
 
 document.addEventListener('DOMContentLoaded', () => {
     loadCars();
